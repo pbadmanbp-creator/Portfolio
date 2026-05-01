@@ -1,0 +1,167 @@
+# 🛡️ ChatFilter — Advanced Chat Moderation for Paper 1.21.4
+
+A production-quality chat filter plugin built for Paper 1.21.4. Fully GUI-driven with word filtering, auto-mute, violation tracking, staff alerts, and Discord webhook integration.
+
+---
+
+## ✨ Features
+
+- **Word filtering** — block or replace messages containing filtered words.
+- **Mute-words** — words that instantly mute the sender, no warnings.
+- **Auto-mute** — automatically mute players after a configurable number of violations.
+- **Violation log** — tracks every player who has triggered the filter, sorted by most violations.
+- **Staff alerts** — notifies online staff in real time when the filter is triggered.
+- **Discord webhooks** — sends violation and mute alerts to a Discord channel.
+- **Full 54-slot GUI** — manage everything in-game with no config editing required.
+- **Bypass permission** — let trusted players bypass the filter entirely.
+- **Configurable warn message** — customise what filtered players see.
+- **Replace mode** — optionally replace bad words with `***` instead of blocking the whole message.
+
+---
+
+## 🖥️ GUI Overview
+
+### Dashboard `/chatfilter`
+The main hub showing live stats and navigation to every section.
+
+| Slot | Button | Action |
+|---|---|---|
+| 10 | Toggle Filter | Enable/disable the filter entirely |
+| 11 | 📋 Filtered Words | View, add and remove filtered words |
+| 12 | 🔇 Mute Words | Words that instantly mute the sender |
+| 13 | ⚠ Violations Log | See who has triggered the filter |
+| 14 | ⚙ Settings | Configure auto-mute, warn messages, replace mode |
+| 15 | 💬 Discord Alerts | Set up your webhook URL and test it |
+| 19 | 🔇 Muted Players | View and manually unmute players |
+| 20 | 🗑 Clear All Violations | Wipe the entire violation log |
+| 22 | ✚ Quick Add Word | Click and type a word to add it instantly |
+
+### Filtered Words
+Paginated list of all filtered words. Click any word to remove it. Add new words via chat after clicking the **Add Word** button.
+
+### Mute Words
+Same layout as filtered words but these trigger an **instant mute** regardless of violation count — no warning given.
+
+### Violations Log
+Sorted by most violations. Each entry shows:
+- Player name
+- Total violation count
+- Last word that triggered the filter
+- Last message sent
+- Timestamp of last violation
+
+Click any entry to clear that player's violations.
+
+### Settings
+| Button | Action |
+|---|---|
+| Replace Mode | Toggle between blocking the message or replacing bad words with `***` |
+| Warn Player | Toggle whether the sender gets a warning message |
+| Auto-Mute Violations | Set how many violations trigger an auto-mute (0 = disabled) |
+| Auto-Mute Duration | Set how long auto-mutes last in seconds |
+| Warn Message | Click to edit the message sent to filtered players |
+
+### Discord Alerts
+| Button | Action |
+|---|---|
+| Toggle | Enable/disable Discord alerts |
+| Set Webhook URL | Click then paste your webhook URL in chat |
+| Min Violations to Ping | Only alert Discord after this many violations |
+| Test Webhook | Send a test message to verify the connection |
+
+### Muted Players
+Lists all currently muted players with time remaining. Click any player to unmute them instantly. Shift+click the clear button to unmute everyone.
+
+---
+
+## 📋 Commands
+
+| Command | Permission | Description |
+|---|---|---|
+| `/chatfilter` | `chatfilter.admin` | Open the management GUI |
+| `/cf` | `chatfilter.admin` | Shortcut alias |
+| `/unmute <player>` | `chatfilter.admin` | Manually unmute a player |
+
+---
+
+## 📋 Permissions
+
+| Permission | Description | Default |
+|---|---|---|
+| `chatfilter.admin` | Access the GUI and all commands | OP |
+| `chatfilter.bypass` | Bypass the chat filter entirely | `false` |
+| `chatfilter.notify` | Receive staff alerts in chat | OP |
+
+---
+
+## 💬 Discord Setup
+
+1. Open your Discord server and go to the channel you want alerts in.
+2. Click **Edit Channel** → **Integrations** → **Webhooks** → **New Webhook**.
+3. Copy the webhook URL.
+4. In-game, run `/cf` → **Discord Alerts** → **Set Webhook URL**.
+5. Paste the URL in chat and press Enter.
+6. Click **Toggle** to enable alerts.
+7. Click **Test Webhook** to confirm it's working.
+
+**What gets sent to Discord:**
+- 🚨 **Violation alert** — player name, triggered word (spoilered), full message, total violations, timestamp.
+- 🔇 **Mute alert** — player name and mute duration.
+- ✅ **Test message** — confirms the webhook is connected.
+
+---
+
+## ⚙️ Configuration
+
+`config.yml` is managed automatically via the GUI. Manual editing is supported if needed.
+
+```yaml
+discord:
+  webhook-url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
+  enabled: false
+  colour: 16711680       # embed colour (decimal) — 16711680 = red
+  min-violations-to-ping: 1
+
+filter:
+  enabled: true
+  replace-mode: false    # true = replace with ***, false = block message
+  warn-player: true
+  warn-message: "&cYour message was blocked by the chat filter."
+  staff-alert: "&8[&cFilter&8] &7{player} &ctriggered filter: &f{word} &7| &fMsg: {message}"
+  auto-mute-violations: 3   # 0 = disabled
+  auto-mute-duration: 300   # seconds
+
+words: []       # managed via GUI
+mute-words: []  # managed via GUI
+```
+
+---
+
+## 🚀 Installation
+
+1. Download `ChatFilter-1.0.0.jar`
+2. Place it in your server's `plugins/` folder
+3. Start or restart your server
+4. Run `/cf` in-game to open the dashboard
+
+**Requirements:** Paper 1.21.4 — no additional dependencies needed.
+
+---
+
+## 🔨 Building from Source
+
+```bash
+git clone https://github.com/yourusername/ChatFilter.git
+cd ChatFilter
+mvn clean package
+```
+
+The compiled jar will be at `target/ChatFilter-1.0.0.jar`.
+
+**Requirements:** Java 21, Maven 3.8+
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
