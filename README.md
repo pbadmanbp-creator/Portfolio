@@ -1,9 +1,9 @@
-# Portfolio
-This is my portfolio, where i showcase all my works for my development services! Im a 17 Year old Passionate developer, with huge experience in:
-Python, html, css and java, and good experience in javascript and c++.
+Hi, I’m a 17-year-old passionate developer with experience in Python, HTML, CSS, and Java, along with working knowledge of JavaScript and C++.
 
-Minecraft Plugins
-Minecraft Setups
-Discord Servers
-Discord Bots
-Full Stack Websites
+I specialize in building practical and scalable solutions across multiple areas of development, including:
+
+- Minecraft Plugins, Server Setups  and Mods
+- Discord Bots and Server Automation  
+- Full-Stack Web Development  
+
+I enjoy turning ideas into real, functional projects!
