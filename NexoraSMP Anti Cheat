@@ -1,0 +1,214 @@
+# 🛡️ NexoraAntiCheat
+**Production-grade AntiCheat for NexoraSMP — Paper 1.21.4**
+
+---
+
+## 📋 Overview
+NexoraAntiCheat is a custom-built, packet-level anti-cheat plugin for NexoraSMP. It uses **PacketEvents** to intercept raw client packets *before* the server processes them — meaning cheats can't hide by lying to the server about their position or actions.
+
+---
+
+## ⚙️ Requirements
+| Requirement | Version |
+|---|---|
+| Paper | 1.21.4 |
+| Java | 21+ |
+| PacketEvents | 2.6.0+ |
+
+> ⚠️ **PacketEvents must be installed as a separate plugin.** Download it from [github.com/retrooper/packetevents/releases](https://github.com/retrooper/packetevents/releases) and place it in your `plugins/` folder.
+
+---
+
+## 🚀 Installation
+1. Download `packetevents-spigot-2.6.0.jar` → place in `plugins/`
+2. Build this plugin: `mvn clean package`
+3. Place `NexoraAntiCheat-1.0.0.jar` in `plugins/`
+4. Restart your server
+5. Configure `plugins/NexoraAntiCheat/config.yml`
+
+---
+
+## 🔍 Checks
+
+| Check | Category | What it detects |
+|---|---|---|
+| **Speed** | Movement | Moving faster than sprint speed + potion allowance |
+| **Fly** | Movement | Staying airborne beyond server-confirmed air ticks |
+| **KillAura** | Combat | High CPS, multi-target attacks, attacking while looking away |
+| **AutoClicker** | Combat | CPS > 16 and robotic click interval pattern (low variance) |
+| **AutoTotem** | Combat | Re-equipping a totem faster than humanly possible (<100ms) |
+| **CrystalAura** | Combat | Placing or exploding end crystals at inhuman speed |
+| **NoFall** | Movement | Client claims to be on ground while server says airborne |
+| **Reach** | Combat | Attacking entities beyond 3.2 blocks (with ping compensation) |
+| **Scaffold** | World | Placing blocks at inhuman speed or impossible angles |
+| **Timer** | Movement | Sending more than 22 movement packets per second |
+| **Jesus** | Movement | Walking on water surface |
+| **NoKnockback** | Combat | Not responding to server-sent velocity (knockback resistance) |
+
+> All checks use **raw packet data** — not Bukkit events. This means the client cannot fake `onGround`, position, or timing values.
+
+---
+
+## 💬 Commands
+
+| Command | Permission | Description |
+|---|---|---|
+| `/nac` | `nac.staff` | Open the admin panel GUI |
+| `/nac alerts` | `nac.staff` | Toggle your violation alerts on/off |
+| `/nac info <player>` | `nac.staff` | View a player's current violation levels |
+| `/nac reset <player>` | `nac.admin` | Clear all violations for a player |
+| `/nac reload` | `nac.admin` | Hot-reload config.yml |
+| `/nac panel` | `nac.admin` | Open GUI panel (same as `/nac`) |
+
+---
+
+## 🔑 Permissions
+
+| Permission | Default | Description |
+|---|---|---|
+| `nac.staff` | OP | Access all staff commands and receive alerts |
+| `nac.admin` | OP | Access admin panel, config, reset |
+| `nac.bypass` | Nobody | Bypass all anti-cheat checks entirely |
+
+---
+
+## 🖥️ GUI Panel (`/nac`)
+
+### Page 1 — Check Settings
+- Each of the 12 checks displayed as a coloured item
+- **Left-click** → toggle check on/off
+- **Right-click** → cycle punishment (Kick → TempBan → PermBan)
+- **Shift+Left-click** → open the **Ban Time Editor** for that check
+- **Shift+Right-click** → reset all player VLs for that check
+- Navigate to Page 2 with the arrow in the bottom-right
+
+### Ban Time Editor
+- `- 1 Day / - 1 Hour / - 10 Min / - 1 Min` subtract buttons
+- `+ 1 Min / + 10 Min / + 1 Hour / + 1 Day` add buttons
+- Quick presets: `30m`, `1h`, `6h`, `12h`, `1d`, `3d`, `1w`
+- VL Threshold adjuster (`+` / `-`)
+- Punishment cycle button
+
+### Page 2 — Player Management
+- Live server stats (online count, active checks, flagged players)
+- Alerts toggle, webhook status, config reload, reset all VLs
+- Player skulls for every flagged player (sorted by total VLs)
+  - **Left-click** → full per-check VL breakdown
+  - **Right-click** → kick immediately
+  - **Shift+Click** → ban using their highest VL check's punishment
+
+---
+
+## 📢 Alert Format
+Every violation alert sent to staff looks like this:
+```
+[AntiCheat] PlayerName failed KillAura x4 | cps=14 max=12
+```
+- `[AntiCheat]` — dark red, bold
+- Player name — yellow
+- Check name — red
+- Violation level — gold, bold
+- Info — gray
+
+---
+
+## 🔔 Discord Webhook
+Set the `discord-webhook` value in `config.yml` to your Discord webhook URL.
+
+Alerts are sent for:
+- Every violation flag (with VL, check, and info)
+- Every punishment issued (kick/tempban/permban)
+
+Webhooks are sent **asynchronously** — zero TPS impact.
+
+**How to create a webhook:**
+1. Go to your Discord channel → Settings → Integrations → Webhooks
+2. Click **New Webhook** → copy the URL
+3. Paste it into `config.yml` under `discord-webhook`
+
+---
+
+## 📁 Config Overview (`config.yml`)
+
+```yaml
+discord-webhook: ""          # Paste your Discord webhook URL here
+
+checks:
+  speed:
+    enabled: true
+    violation-threshold: 5   # Flags before punishment triggers
+    punishment: TEMP_BAN      # KICK, TEMP_BAN, or PERM_BAN
+    ban-duration: 60          # Minutes (only used for TEMP_BAN)
+    max-speed: 0.35
+
+  killaura:
+    enabled: true
+    violation-threshold: 4
+    punishment: TEMP_BAN
+    ban-duration: 1440        # 24 hours
+    max-hits-per-second: 12
+    max-reach: 3.2
+  # ... (one section per check)
+
+logging:
+  enabled: true
+  log-format: "[{timestamp}] {player} ({uuid}) failed {check} - {info}"
+```
+
+All settings can also be changed **in-game** via `/nac` without editing files.
+
+---
+
+## 📂 File Structure
+
+```
+NexoraAntiCheat/
+├── pom.xml
+└── src/main/java/dev/nexoraac/
+    ├── NexoraAntiCheat.java          # Main plugin class
+    ├── packet/
+    │   └── NacPacketListener.java    # Core packet interception layer
+    ├── checks/
+    │   ├── AbstractCheck.java
+    │   ├── CheckType.java
+    │   └── impl/                     # 12 check implementations
+    ├── data/
+    │   └── PlayerData.java           # Per-player tracking data
+    ├── managers/
+    │   ├── CheckManager.java
+    │   ├── PlayerDataManager.java
+    │   ├── ViolationManager.java
+    │   └── LogManager.java
+    ├── alerts/
+    │   ├── AlertManager.java         # In-game staff alerts
+    │   └── WebhookManager.java       # Discord webhook
+    ├── gui/
+    │   └── AdminGUI.java             # 2-page chest GUI
+    ├── commands/
+    │   └── NacCommand.java
+    ├── config/
+    │   └── ConfigManager.java
+    ├── punishment/
+    │   ├── PunishmentManager.java
+    │   └── PunishmentType.java
+    └── listeners/
+        ├── ConnectionListener.java
+        ├── CombatListener.java
+        └── MovementListener.java
+```
+
+---
+
+## 🏗️ Why PacketEvents?
+
+Standard Bukkit plugins only see movement *after* the server has accepted it. A fly hacker sends `onGround=true` every packet — Bukkit never sees them as airborne.
+
+PacketEvents intercepts the raw client packet **before** the server processes it. This means:
+- We see the client's **actual claimed position**, not the server-accepted one
+- `onGround` is cross-checked against a **server-side block check** — can't be faked
+- Attack timing is measured in **raw milliseconds** from packet timestamps
+- Velocity packets sent *to* the client are tracked so we know what knockback to expect back
+
+---
+
+*Built for NexoraSMP — not for redistribution.*
