@@ -1,0 +1,157 @@
+# ⚔️ KothPlugin — King of the Hill for Paper 1.21.4
+
+A production-quality **King of the Hill** plugin built for Paper 1.21.4. Fully GUI-driven with a custom wand-based zone selector, score system, daily schedules, Discord alerts, and per-arena reward commands.
+
+---
+
+## ✨ Features
+
+- **Score-based capture** — 1 point per second, 180 points to win (3 minutes). Fully configurable.
+- **Contested zones** — timer pauses when multiple players are in the zone.
+- **Custom wand** — set zone corners with a stick. No WorldEdit required.
+- **Full 54-slot GUI** — create, manage and monitor all arenas in-game.
+- **Daily schedules** — set multiple auto-start times per arena (HH:MM:SS). Built-in time picker GUI.
+- **Discord webhooks** — violation and win alerts sent to your Discord channel.
+- **Reward commands** — run any console command on win with `%player%` support.
+- **Live chat announcements** — colour-coded broadcasts for every game event.
+- **Player disconnect handling** — clears control if the capper logs off mid-game.
+
+---
+
+## 📢 Chat Messages
+
+| Event | Format |
+|---|---|
+| KOTH starts | `[KOTH]` **KothName** Has Started At *coords* |
+| Player takes control | `[KOTH]` **Player** Has Taken Control Of **KothName** |
+| Player loses control | `[KOTH]` **Player** Has Lost Control Of **KothName** |
+| Score milestone (every 10pts) | `[KOTH]` **Player** Is Currently Controlling **KothName** With A Score Of *X / 180* |
+| Zone contested | `[KOTH]` **KothName** Is Now Contested! The Timer Has Paused. |
+| Player wins | `[KOTH]` **Player** Won **KothName** And Won 1 Nexora Key, 1 Harvester Key and 1 Feather Key |
+
+> Colour scheme: KOTH name = **blue**, player name = **red**, score/info = **yellow**, win line = **gold**
+
+---
+
+## 🕹️ Commands
+
+| Command | Description |
+|---|---|
+| `/koth` | Open the management GUI |
+| `/koth list` | List all arenas and their status |
+| `/koth start <arena>` | Force-start a specific arena |
+| `/koth start` | Start all enabled arenas |
+| `/koth end <arena>` | Force-stop a specific arena |
+| `/koth end` | Stop all running arenas |
+| `/koth when <arena>` | Show schedule times for an arena |
+| `/koth when` | Show schedule times for all arenas |
+| `/koth wand <arena>` | Get the zone wand for an arena |
+
+---
+
+## 🪄 Zone Wand
+
+The wand is a **stick** with a custom name and persistent data tag so it won't conflict with regular sticks.
+
+1. Run `/koth wand <arena>` — the wand is added to your inventory.
+2. **Right-click** any block to set **Pos1** (first corner).
+3. **Left-click** any block to set **Pos2** (second corner).
+4. Once both positions are set, the zone saves **automatically**.
+5. Drop or replace the wand when done. You can re-run `/koth wand` at any time to refine the selection.
+
+> Particle effects appear at each corner when set, so you can see exactly where your zone is.
+
+---
+
+## 🖥️ GUI Overview
+
+### Main Menu `/koth`
+Lists all arenas as icons. Green = enabled, beacon = live, coal = disabled. Click any arena to manage it.
+
+### Arena Settings
+| Button | Action |
+|---|---|
+| 🪄 Get Zone Wand | Gives you the wand to set the zone |
+| Toggle Enabled | Enable/disable auto-restart and schedules |
+| ⏱ Score To Win | Adjust win score (+/-10, +/-50) |
+| ▶ Start Game | Force-start the arena |
+| ■ Stop Game | Force-stop the arena |
+| 🎁 Rewards | Manage win reward commands |
+| 📅 Schedules | Manage daily auto-start times |
+| ✈ Teleport | Teleport to the zone centre |
+| 🗑 Delete | Shift+click to permanently delete |
+
+### Schedules GUI
+Add daily auto-start times via chat (`14:30:00`) or using the built-in **time picker** with `+`/`-` buttons for hours, minutes and seconds. Click any existing schedule to remove it.
+
+### Rewards GUI
+Add console commands run on win. Use `%player%` as a placeholder for the winner's name. A **Default Rewards** button applies the three standard key rewards instantly.
+
+---
+
+## 📋 Permissions
+
+| Permission | Description | Default |
+|---|---|---|
+| `koth.admin` | Access all KOTH admin commands and GUI | OP |
+| `koth.use` | Participate in KOTH events | Everyone |
+
+---
+
+## ⚙️ Configuration
+
+`config.yml` is managed automatically via the GUI. You can edit it manually if needed.
+
+```yaml
+settings:
+  prefix: "&6&lKOTH &8» &r"
+  check-interval: 20  # ticks between zone checks (20 = 1 second)
+
+arenas:
+  my_koth:
+    enabled: true
+    capture-score: 180       # points needed to win
+    rewards:
+      - "koth givekey %player% nexora 1"
+    schedules:
+      - "14:00:00"
+      - "20:00:00"
+    world: world
+    min-x: 100
+    min-y: 64
+    min-z: 100
+    max-x: 120
+    max-y: 80
+    max-z: 120
+```
+
+---
+
+## 🚀 Installation
+
+1. Download `KothPlugin-3.0.0.jar`
+2. Place it in your server's `plugins/` folder
+3. Start or restart your server
+4. Run `/koth` in-game to create your first arena
+
+**Requirements:** Paper 1.21.4 — no additional dependencies needed.
+
+---
+
+## 🔨 Building from Source
+
+```bash
+git clone https://github.com/yourusername/KothPlugin.git
+cd KothPlugin
+mvn clean package
+```
+
+The compiled jar will be at `target/KothPlugin-3.0.0.jar`.
+
+**Requirements:** Java 21, Maven 3.8+
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
