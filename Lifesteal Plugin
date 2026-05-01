@@ -1,0 +1,172 @@
+# ❤️ NexoraLifesteal
+**Lifesteal SMP plugin for NexoraSMP — Paper 1.21.4**
+
+---
+
+## 📋 Overview
+NexoraLifesteal is a custom-built Lifesteal SMP plugin for NexoraSMP. When a player kills another player, they steal a heart from their victim and add it to their own maximum health. Hearts can be withdrawn as physical tradeable items, deposited back, and tracked on a live leaderboard.
+
+---
+
+## ⚙️ Requirements
+| Requirement | Version |
+|---|---|
+| Paper | 1.21.4 |
+| Java | 21+ |
+
+> No external plugin dependencies required. Fully standalone.
+
+---
+
+## 🚀 Installation
+1. Build the plugin: `mvn clean package`
+2. Place `NexoraLifesteal-1.0.0.jar` in your `plugins/` folder
+3. Restart your server
+4. Configure `plugins/NexoraLifesteal/config.yml`
+
+---
+
+## ❤️ How It Works
+
+### PvP Heart Stealing
+- Kill a player → gain **+1 heart**, they lose **-1 heart**
+- Die to anything (fall, lava, mob) → lose **1 heart**
+- Hit 0 hearts → respawn with **9 hearts** (configurable)
+- Max hearts cap: **20 hearts** (configurable)
+- Starting hearts: **10 hearts** (configurable)
+
+### Heart Items
+- Use `/withdraw <amount>` to convert max hearts into physical **❤ Heart** items
+- Hearts are **red dye** items with a custom PDC tag (identified safely, never by display name)
+- **Right-click** a heart item to deposit it back into your max health
+- Hearts are fully **tradeable** — drop them, put them in chests, give to friends
+- Custom model data `1001` supported for resource pack skins
+
+---
+
+## 💬 Commands
+
+| Command | Permission | Description |
+|---|---|---|
+| `/lifesteal` or `/ls` | `nexoralifesteal.use` | Open the Lifesteal GUI |
+| `/lifesteal <player>` | `nexoralifesteal.use` | Check another player's heart count |
+| `/withdraw <amount>` | `nexoralifesteal.use` | Withdraw hearts as tradeable items |
+| `/sethearts <player> <amount>` | `nexoralifesteal.admin` | Set a player's heart count |
+| `/lifestealreload` | `nexoralifesteal.admin` | Hot-reload config.yml |
+
+> Amount shortcuts supported: `1`, `5`, `10`, `20`
+
+---
+
+## 🔑 Permissions
+
+| Permission | Default | Description |
+|---|---|---|
+| `nexoralifesteal.use` | Everyone | Use GUI, withdraw, check hearts |
+| `nexoralifesteal.admin` | OP | Set hearts, reload config |
+| `nexoralifesteal.bypass` | Nobody | Skip heart loss on death |
+
+---
+
+## 🖥️ GUI (`/lifesteal`)
+
+### Heart Bar (Row 1)
+- 🟥 Red glass panes = current hearts filled
+- ⬛ Black glass panes = empty hearts
+- Scales proportionally to your max heart count
+
+### Stats Panel (Row 2)
+| Slot | Item | Shows |
+|---|---|---|
+| Left | Nether Star | Current hearts, max hearts, how many you can withdraw |
+| Middle | Diamond Sword | PvP kills, deaths, hearts stolen from others |
+| Centre | Hopper | Withdraw button — click to withdraw 1 heart instantly |
+| Right | Book | Top 5 leaderboard by heart count with medals 🥇🥈🥉 |
+
+---
+
+## 📢 Broadcast Messages
+
+**On PvP kill:**
+```
+❤ KillerName stole a heart from VictimName! (12❤ → 9❤)
+```
+
+**On death at 0 hearts:**
+```
+You hit 0 hearts! You respawn with 9❤ hearts.
+```
+
+**On withdraw:**
+```
+You withdrew 3❤ hearts. Remaining: 7❤
+```
+
+---
+
+## 📁 Config Overview (`config.yml`)
+
+```yaml
+starting-hearts: 10        # Hearts on first join
+max-hearts: 20             # Maximum hearts a player can reach
+withdraw-min-keep: 2       # Minimum hearts you must keep (can't withdraw below this)
+hearts-per-kill: 1         # Hearts stolen per PvP kill
+hearts-lost-on-death: 1    # Hearts lost on any death
+respawn-floor-hearts: 9    # Hearts given when player hits 0
+heart-item-model-data: 1001 # Custom model data for resource packs
+broadcast-kills: true      # Broadcast heart steals server-wide
+autosave-interval: 5       # Minutes between auto-saves
+```
+
+All messages are fully configurable under the `messages:` section.
+
+---
+
+## 💾 Data Storage
+- Player data saved to `plugins/NexoraLifesteal/players.yml`
+- Stores per player: hearts, kills, deaths, hearts stolen
+- Saves on quit, saves every 5 minutes automatically
+- All file I/O is **async** — no TPS impact
+
+---
+
+## 📂 File Structure
+
+```
+NexoraLifesteal/
+├── pom.xml
+└── src/main/java/dev/nexoralifesteal/
+    ├── NexoraLifesteal.java           # Main plugin class
+    ├── commands/
+    │   ├── LifestealCommand.java      # /lifesteal, /ls
+    │   ├── WithdrawCommand.java       # /withdraw
+    └── └── SetHeartsCommand.java      # /sethearts
+    ├── data/
+    │   ├── PlayerData.java            # Per-player data model
+    │   └── DataManager.java          # YAML persistence
+    ├── gui/
+    │   └── LifestealGUI.java          # Chest GUI with stats + leaderboard
+    ├── items/
+    │   └── HeartItem.java             # Heart item factory + PDC identifier
+    ├── listeners/
+    │   ├── PlayerJoinQuitListener.java
+    │   ├── PlayerKillListener.java    # PvP heart steal + death heart loss
+    │   └── ItemUseListener.java       # Right-click to deposit hearts
+    ├── managers/
+    │   └── HeartManager.java          # Core heart logic + attribute management
+    └── config/
+        └── ConfigManager.java
+```
+
+---
+
+## 🔧 Technical Notes
+- Uses **Paper AttributeModifier** with `NamespacedKey` for max health changes — no deprecated methods
+- Heart items identified by **PersistentDataContainer tag**, never by display name
+- Heart cap and minimum enforced on both withdraw and deposit
+- `/sethearts` clamps to configured min/max automatically
+- Handles `/reload` safely — re-applies hearts to all online players on enable
+
+---
+
+*Built for NexoraSMP — not for redistribution.*
