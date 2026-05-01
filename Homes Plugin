@@ -1,0 +1,154 @@
+# 🏠 HomesPlugin
+**Player homes plugin for NexoraSMP — Paper 1.21.4**
+
+---
+
+## 📋 Overview
+HomesPlugin allows players to set, teleport to, and manage personal home locations. Features a 54-slot chest GUI for browsing homes, per-rank home limits via LuckPerms, and configurable teleport cooldowns.
+
+---
+
+## 🚀 Installation
+1. Place `HomesPlugin.jar` in your `plugins/` folder
+2. Restart your server
+3. Configure `plugins/HomesPlugin/config.yml`
+
+---
+
+## 💬 Commands
+
+| Command | Description |
+|---|---|
+| `/sethome <name>` | Set a home at your current location |
+| `/home <name>` | Teleport to a home |
+| `/home` | Open the homes GUI (no argument) |
+| `/delhome <name>` | Delete a home |
+| `/homes` | Open your homes GUI |
+| `/homes <player>` | View another player's homes (admin) |
+| `/homelist` | List all your homes in chat |
+
+---
+
+## 🔑 Permissions
+
+### Player Permissions
+| Permission | Description |
+|---|---|
+| `homes.use` | Basic home commands — set, teleport, delete |
+| `homes.gui` | Access the homes GUI |
+| `homes.list` | Use `/homelist` |
+
+### Home Limit Permissions
+Assign these in LuckPerms to control how many homes each rank can have:
+
+| Permission | Homes Allowed |
+|---|---|
+| `homes.limit.1` | 1 home |
+| `homes.limit.2` | 2 homes |
+| `homes.limit.3` | 3 homes |
+| `homes.limit.5` | 5 homes |
+| `homes.limit.10` | 10 homes |
+| `homes.unlimited` | Unlimited homes |
+
+### Cooldown Bypass Permissions
+| Permission | Description |
+|---|---|
+| `homes.cooldown.bypass` | Skip teleport cooldown entirely |
+| `homes.warmup.bypass` | Skip teleport warmup entirely |
+
+### Admin Permissions
+| Permission | Description |
+|---|---|
+| `homes.admin` | View and manage other players' homes |
+| `homes.admin.delete` | Delete other players' homes |
+| `homes.reload` | Reload the config |
+
+---
+
+## 🎖️ LuckPerms Setup
+
+Assign home limits to your ranks using LuckPerms:
+
+```bash
+# Give default rank 3 homes
+/lp group default permission set homes.limit.3 true
+
+# Give VIP rank 5 homes
+/lp group vip permission set homes.limit.5 true
+
+# Give Elite rank 10 homes
+/lp group elite permission set homes.limit.10 true
+
+# Give staff unlimited homes
+/lp group staff permission set homes.unlimited true
+
+# Give staff cooldown bypass
+/lp group staff permission set homes.cooldown.bypass true
+```
+
+---
+
+## 🖥️ GUI (`/homes`)
+
+- **54-slot chest GUI** showing all your set homes
+- Each home displayed as a **player head** or map item
+- Shows home name, world, and coordinates in the lore
+- Click a home to teleport to it instantly
+- Homes sorted alphabetically
+- Overflow pages if you have more than 45 homes
+
+---
+
+## ⏱️ Cooldowns & Warmup
+
+| Setting | Default | Description |
+|---|---|---|
+| Teleport warmup | 3 seconds | Player must stand still before teleporting |
+| Teleport cooldown | 30 seconds | Wait time between home teleports |
+
+> Moving or taking damage during warmup cancels the teleport.
+> Bypass with `homes.cooldown.bypass` or `homes.warmup.bypass`.
+
+---
+
+## 📁 Config Overview (`config.yml`)
+
+```yaml
+# Default home limit (overridden by LuckPerms permission nodes)
+default-home-limit: 3
+
+# Teleport warmup in seconds (0 to disable)
+teleport-warmup: 3
+
+# Teleport cooldown in seconds (0 to disable)
+teleport-cooldown: 30
+
+# Allow homes to be set in all worlds
+allow-all-worlds: true
+
+# Worlds where homes cannot be set
+blacklisted-worlds:
+  - world_nether
+  - world_the_end
+
+messages:
+  home-set: "&aHome &e{name} &aset!"
+  home-teleport: "&aTeleporting to &e{name}&a..."
+  home-deleted: "&cHome &e{name} &cdeleted."
+  cooldown: "&cYou must wait &e{time} &cbefore teleporting again."
+  warmup: "&aTeleporting in &e{time} &aseconds. Don't move!"
+  warmup-cancelled: "&cTeleport cancelled."
+  no-home: "&cHome &e{name} &cdoes not exist."
+  limit-reached: "&cYou have reached your home limit of &e{limit}&c."
+```
+
+---
+
+## 💾 Data Storage
+- Homes saved per player in `plugins/HomesPlugin/homes.yml`
+- Stores home name, world, X, Y, Z, yaw, pitch
+- Data persists across restarts
+
+---
+
+*Built for NexoraSMP — not for redistribution.*
